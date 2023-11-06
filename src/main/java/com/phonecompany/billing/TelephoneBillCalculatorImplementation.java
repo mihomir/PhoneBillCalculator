@@ -40,28 +40,22 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
         int startHour = callBillEntry.getCallStart().getHours();
         int endHour = callBillEntry.getCallEnd().getHours();
 
+        long durationInMs = Math.abs(callBillEntry.getCallStart().getTime() - callBillEntry.getCallEnd().getTime());
+        long durationInSeconds = durationInMs / 1000;
+        BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
+        durationInMinutes = durationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
+        BigDecimal longPartOfCall = BigDecimal.ZERO;
+        if (durationInMinutes.compareTo(expensiveDuration) > 0) {
+            longPartOfCall = longPartOfCall.add(durationInMinutes.subtract(expensiveDuration).multiply(longCost));
+            durationInMinutes = expensiveDuration;
+        }
+
         if (startHour >= expensiveEnd || endHour < expensiveStart) {
-            long durationInMs = Math.abs(callBillEntry.getCallStart().getTime() - callBillEntry.getCallEnd().getTime());
-            long durationInSeconds = durationInMs / 1000;
-            BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
-            durationInMinutes = durationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
-            if (durationInMinutes.compareTo(expensiveDuration) > 0) {
-                return expensiveDuration.multiply(cheapCost)
-                        .add(durationInMinutes.subtract(expensiveDuration).multiply(longCost));
-            }
-            return durationInMinutes.multiply(cheapCost);
+                return durationInMinutes.multiply(cheapCost).add(longPartOfCall);
         }
 
         if (startHour >= expensiveStart && endHour <= expensiveEnd) {
-            long durationInMs = Math.abs(callBillEntry.getCallStart().getTime() - callBillEntry.getCallEnd().getTime());
-            long durationInSeconds = durationInMs / 1000;
-            BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
-            durationInMinutes = durationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
-            if (durationInMinutes.compareTo(expensiveDuration) > 0) {
-                return expensiveDuration.multiply(expensiveCost)
-                        .add(durationInMinutes.subtract(expensiveDuration).multiply(longCost));
-            }
-            return durationInMinutes.multiply(expensiveCost);
+                return durationInMinutes.multiply(expensiveCost).add(longPartOfCall);
         }
         return new BigDecimal(0);
     }
