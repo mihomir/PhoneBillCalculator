@@ -16,6 +16,17 @@ class TelephoneBillCalculatorImplementationTest {
             420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
             420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
             """;
+
+    private static final String exactlyTwoMinutes = """
+            420774577453,13-01-2020 08:10:15,13-01-2020 08:12:15
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            """;
+    private static final String startedThirdMinute = """
+            420774577453,13-01-2020 08:10:15,13-01-2020 08:12:16
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            """;
     private static final String longCall = """
             420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
             420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
@@ -28,7 +39,7 @@ class TelephoneBillCalculatorImplementationTest {
             420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
             """;
 
-    private static final String multiLine = """
+    private static final String exampleList = """
             420774577453,13-01-2020 18:10:15,13-01-2020 18:12:57
             420776562353,18-01-2020 08:59:20,18-01-2020 09:10:00
             """;
@@ -79,6 +90,21 @@ class TelephoneBillCalculatorImplementationTest {
     }
 
     @Test
-    void calculate() {
+    void testExample(){
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("1.5"),telephoneBillCalculator.calculate(exampleList));
     }
+
+    @Test
+    void testExactlyTwoMinutes() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("2.0"),telephoneBillCalculator.calculate(exactlyTwoMinutes));
+    }
+
+    @Test
+    void testStartedThirdMinute() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("3.0"),telephoneBillCalculator.calculate(startedThirdMinute));
+    }
+
 }

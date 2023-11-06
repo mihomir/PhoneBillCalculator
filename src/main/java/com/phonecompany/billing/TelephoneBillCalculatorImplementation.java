@@ -39,15 +39,9 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
     private BigDecimal calculateCost(PhoneBillEntry callBillEntry) {
         int startHour = callBillEntry.getCallStart().getHours();
         int endHour = callBillEntry.getCallEnd().getHours();
-        Date startRoundedToNearestMinute = new Date (
-                callBillEntry.getCallStart().getYear(),
-                callBillEntry.getCallStart().getMonth(),
-                callBillEntry.getCallStart().getDate(),
-                callBillEntry.getCallStart().getHours(),
-                callBillEntry.getCallStart().getMinutes());
 
         if (startHour >= expensiveEnd || endHour < expensiveStart) {
-            long durationInMs = Math.abs(startRoundedToNearestMinute.getTime() - callBillEntry.getCallEnd().getTime());
+            long durationInMs = Math.abs(callBillEntry.getCallStart().getTime() - callBillEntry.getCallEnd().getTime());
             long durationInSeconds = durationInMs / 1000;
             BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
             durationInMinutes = durationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
@@ -59,7 +53,7 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
         }
 
         if (startHour >= expensiveStart && endHour <= expensiveEnd) {
-            long durationInMs = Math.abs(startRoundedToNearestMinute.getTime() - callBillEntry.getCallEnd().getTime());
+            long durationInMs = Math.abs(callBillEntry.getCallStart().getTime() - callBillEntry.getCallEnd().getTime());
             long durationInSeconds = durationInMs / 1000;
             BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
             durationInMinutes = durationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
