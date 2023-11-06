@@ -11,6 +11,7 @@ class TelephoneBillCalculatorImplementationTest {
 //    private static final String oneline = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:57";
     private static final String oneline = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:45";
     private static final String longCall = "420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45";
+    private static final String expensiveCall = "420774577453,13-01-2020 08:10:15,13-01-2020 08:14:45";
 
     @org.junit.jupiter.api.Test
     void testNonNull(){
@@ -26,6 +27,12 @@ class TelephoneBillCalculatorImplementationTest {
     void testLongCall() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
         assertEquals(new BigDecimal("2.9"), telephoneBillCalculator.calculate(longCall));
+    }
+
+    @Test
+    void testExpensiveCall() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("5.0"), telephoneBillCalculator.calculate(expensiveCall));
     }
 
     @Test

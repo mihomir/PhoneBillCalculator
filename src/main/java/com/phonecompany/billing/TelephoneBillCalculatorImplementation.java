@@ -32,6 +32,7 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
         String mostCommonCaller = findMostCommonCaller(callFrequency);
         totalCost = phoneBillEntries.stream().filter(e -> e.getPhoneNumber().equals(mostCommonCaller))
                 .map(this::calculateCost).reduce(totalCost, BigDecimal::add);
+        totalCost = totalCost.setScale(1, RoundingMode.HALF_UP);
         return totalCost;
     }
 
@@ -45,7 +46,7 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
                 callBillEntry.getCallStart().getHours(),
                 callBillEntry.getCallStart().getMinutes());
 
-        if (startHour >= expensiveEnd || endHour >= expensiveStart) {
+        if (startHour >= expensiveEnd || endHour < expensiveStart) {
             long durationInMs = Math.abs(startRoundedToNearestMinute.getTime() - callBillEntry.getCallEnd().getTime());
             long durationInSeconds = durationInMs / 1000;
             BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
@@ -55,6 +56,18 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
                         .add(durationInMinutes.subtract(expensiveDuration).multiply(longCost));
             }
             return durationInMinutes.multiply(cheapCost);
+        }
+
+        if (startHour >= expensiveStart && endHour <= expensiveEnd) {
+            long durationInMs = Math.abs(startRoundedToNearestMinute.getTime() - callBillEntry.getCallEnd().getTime());
+            long durationInSeconds = durationInMs / 1000;
+            BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
+            durationInMinutes = durationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
+            if (durationInMinutes.compareTo(expensiveDuration) > 0) {
+                return expensiveDuration.multiply(expensiveCost)
+                        .add(durationInMinutes.subtract(expensiveDuration).multiply(longCost));
+            }
+            return durationInMinutes.multiply(expensiveCost);
         }
         return new BigDecimal(0);
     }
