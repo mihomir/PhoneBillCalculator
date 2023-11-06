@@ -47,19 +47,22 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
         BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
         durationInMinutes = durationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
         BigDecimal longPartOfCall = BigDecimal.ZERO;
+        //If the call is longer than 5 minutes, all extra minutes are on the cheap rate
         if (durationInMinutes.compareTo(expensiveDuration) > 0) {
             longPartOfCall = longPartOfCall.add(durationInMinutes.subtract(expensiveDuration).multiply(longCost));
             durationInMinutes = expensiveDuration;
         }
 
+        //If the call is outside the expensive zone, use the cheap cost
         if (startHour >= expensiveEnd || endHour < expensiveStart) {
             callCost = callCost.add(durationInMinutes.multiply(cheapCost));
         }
-
-        if (startHour >= expensiveStart && endHour <= expensiveEnd) {
+        //If the call is inside the expensive zone, use the expensive cost
+        if (startHour >= expensiveStart && endHour < expensiveEnd) {
             callCost = callCost.add(durationInMinutes.multiply(expensiveCost));
         }
         //This is assuming there are no calls longer than 24 hours
+        //If the call starts before the expensive zone starts, but ends after, we have to bill some minutes differently
         if (startHour < expensiveStart && endHour >= expensiveStart) {
             int startMinutes = callBillEntry.getCallStart().getMinutes();
             int startSeconds = callBillEntry.getCallStart().getSeconds();
@@ -71,8 +74,20 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
                     .add(durationInMinutes.subtract(cheapPartDurationInMinutes).multiply(expensiveCost))
             );
 
-//            int endMinutes = callBillEntry.getCallEnd().getMinutes();
-//            int endSeconds = callBillEntry.getCallEnd().getSeconds();
+        }
+        //This is assuming there are no calls longer than 24 hours
+        //If the call starts during the expensive zone, but ends after it, we have to bill some minutes differently
+        if (startHour < expensiveEnd && endHour >= expensiveEnd) {
+            int startMinutes = callBillEntry.getCallStart().getMinutes();
+            int startSeconds = callBillEntry.getCallStart().getSeconds();
+            int durationBeforeExpensiveEndtInSeconds = 60 - startSeconds + (59-startMinutes)*60;
+            BigDecimal expensivePartDurationInMinutes = new BigDecimal(durationBeforeExpensiveEndtInSeconds);
+            expensivePartDurationInMinutes = expensivePartDurationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
+            callCost = callCost.add(
+                    expensivePartDurationInMinutes.multiply(expensiveCost)
+                            .add(durationInMinutes.subtract(expensivePartDurationInMinutes).multiply(cheapCost))
+            );
+
         }
 
         return callCost.add(longPartOfCall);
