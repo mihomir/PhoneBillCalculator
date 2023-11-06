@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TelephoneBillCalculatorImplementation implements TelephoneBillCalculator {
 
@@ -20,7 +21,30 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
             phoneBillEntries.add(currentEntry);
             callFrequency.put(currentEntry.getPhoneNumber(), callFrequency.getOrDefault(currentEntry.getPhoneNumber(), 0) + 1);
         }
-        return null;
+        BigDecimal totalCost = new BigDecimal(0);
+        String mostCommonCaller = findMostCommonCaller(callFrequency);
+        totalCost = phoneBillEntries.stream().filter(e -> e.getPhoneNumber().equals(mostCommonCaller))
+                .map(this::calculateCost).reduce(totalCost, BigDecimal::add);
+        return totalCost;
+    }
+
+    private BigDecimal calculateCost(PhoneBillEntry callBillEntry) {
+        return new BigDecimal(0);
+    }
+
+    private String findMostCommonCaller(Map<String, Integer> callFrequency) {
+        Optional<Integer> max = callFrequency.values().stream().max(Integer::compareTo);
+        if (max.isEmpty()) {
+            throw new RuntimeException("No Calls detected");
+        }
+        Set<String> mostCommonPhoneNumbers =
+                callFrequency.entrySet().stream()
+                        .filter(e -> e.getValue().equals(max.get()))
+                        .map(Map.Entry::getKey).collect(Collectors.toSet());
+        if (mostCommonPhoneNumbers.isEmpty()) {
+            throw new RuntimeException();
+        }
+        return mostCommonPhoneNumbers.stream().max(String::compareTo).get();
     }
 
     private PhoneBillEntry parseCallLogLine(String callLogLine) {
