@@ -30,7 +30,7 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
         }
         BigDecimal totalCost = new BigDecimal(0);
         String mostCommonCaller = findMostCommonCaller(callFrequency);
-        totalCost = phoneBillEntries.stream().filter(e -> e.getPhoneNumber().equals(mostCommonCaller))
+        totalCost = phoneBillEntries.stream().filter(e -> !e.getPhoneNumber().equals(mostCommonCaller))
                 .map(this::calculateCost).reduce(totalCost, BigDecimal::add);
         totalCost = totalCost.setScale(1, RoundingMode.HALF_UP);
         return totalCost;

@@ -8,21 +8,58 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TelephoneBillCalculatorImplementationTest {
 
-//    private static final String oneline = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:57";
-    private static final String oneline = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:45";
-    private static final String longCall = "420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45";
-    private static final String expensiveCall = "420774577453,13-01-2020 08:10:15,13-01-2020 08:14:45";
+    //    private static final String oneline = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:57";
+    private static final String oneLine = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:45";
 
-    @org.junit.jupiter.api.Test
-    void testNonNull(){
-        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
-        assertNotNull(telephoneBillCalculator.calculate(oneline));
-    }
+    private static final String oneCheapCall = """
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:12:45
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            """;
+    private static final String longCall = """
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            """;
+
+    private static final String expensiveCall = """
+            420774577453,13-01-2020 08:10:15,13-01-2020 08:14:45
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            420774577454,13-01-2020 18:10:15,13-01-2020 18:12:45
+            """;
+
+    private static final String multiLine = """
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:12:57
+            420776562353,18-01-2020 08:59:20,18-01-2020 09:10:00
+            """;
+
+    private static final String freeCalls = """
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            """;
+
+    private static
+
     @Test
-    void testOneCall() {
+    void testNonNull() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
-        assertEquals(new BigDecimal("1.5"), telephoneBillCalculator.calculate(oneline));
+        assertNotNull(telephoneBillCalculator.calculate(oneLine));
     }
+
+    @Test
+    void testOneCheapCall() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("1.5"), telephoneBillCalculator.calculate(oneCheapCall));
+    }
+
+    @Test
+    void testOneFreeCall() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("0.0"), telephoneBillCalculator.calculate(oneLine));
+    }
+
     @Test
     void testLongCall() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
@@ -33,6 +70,12 @@ class TelephoneBillCalculatorImplementationTest {
     void testExpensiveCall() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
         assertEquals(new BigDecimal("5.0"), telephoneBillCalculator.calculate(expensiveCall));
+    }
+
+    @Test
+    void testFreeCalls(){
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("0.0"),telephoneBillCalculator.calculate(freeCalls));
     }
 
     @Test
