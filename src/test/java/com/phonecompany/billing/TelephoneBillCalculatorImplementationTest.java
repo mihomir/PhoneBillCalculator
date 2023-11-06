@@ -70,6 +70,26 @@ class TelephoneBillCalculatorImplementationTest {
             """;
 
 
+    private static final String oneExpensiveMinute = """
+            420123577453,13-01-2020 15:59:15,13-01-2020 16:00:03
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            """;
+
+    private static final String longOverlapping = """
+            420123577453,13-01-2020 15:30:15,13-01-2020 16:05:03
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            """;
+
+    private static final String longOverlappingCheap = """
+            420123577453,13-01-2020 07:30:15,13-01-2020 08:05:03
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            """;
+
+
+
     @Test
     void testNonNull() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
@@ -140,6 +160,24 @@ class TelephoneBillCalculatorImplementationTest {
     void testOneCheapMinute() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
         assertEquals(new BigDecimal("0.5"),telephoneBillCalculator.calculate(oneCheapMinute));
+    }
+
+    @Test
+    void testOneExpensiveMinute() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("1.0"),telephoneBillCalculator.calculate(oneExpensiveMinute));
+    }
+
+    @Test
+    void testLongOverlapping() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("11.0"),telephoneBillCalculator.calculate(longOverlapping));
+    }
+
+    @Test
+    void testLongOverlappingCheap() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("8.5"),telephoneBillCalculator.calculate(longOverlappingCheap));
     }
 
 
