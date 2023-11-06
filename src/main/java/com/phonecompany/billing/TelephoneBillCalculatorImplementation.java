@@ -9,6 +9,11 @@ import java.util.stream.Collectors;
 public class TelephoneBillCalculatorImplementation implements TelephoneBillCalculator {
 
     private static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
+    private static final int expensiveStart = 8;
+    private static final int expensiveEnd = 16;
+    private static final BigDecimal expensiveCost = BigDecimal.ONE;
+    private static final BigDecimal cheapCost = new BigDecimal("0.5");
+    private static final BigDecimal longCost = new BigDecimal("0.2");
     @Override
     public BigDecimal calculate(String phoneLog) {
 
@@ -29,6 +34,15 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
     }
 
     private BigDecimal calculateCost(PhoneBillEntry callBillEntry) {
+        int startHour = callBillEntry.getCallStart().getHours();
+        int endHour = callBillEntry.getCallEnd().getHours();
+        if (startHour >= expensiveEnd || endHour >= expensiveStart) {
+            long durationInMs = Math.abs(callBillEntry.getCallStart().getTime() - callBillEntry.getCallEnd().getTime());
+            long durationInSeconds = durationInMs / 1000;
+            BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
+            durationInMinutes = durationInMinutes.divide(new BigDecimal(60));
+            return durationInMinutes.multiply(cheapCost);
+        }
         return new BigDecimal(0);
     }
 

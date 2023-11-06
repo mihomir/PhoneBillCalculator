@@ -19,7 +19,7 @@ class TelephoneBillCalculatorImplementationTest {
     @Test
     void testOneCall() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
-        assertEquals(new BigDecimal(1), telephoneBillCalculator.calculate(oneline));
+        assertEquals(new BigDecimal("1.0"), telephoneBillCalculator.calculate(oneline));
     }
 
     @Test
