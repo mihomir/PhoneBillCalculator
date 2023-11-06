@@ -63,6 +63,13 @@ class TelephoneBillCalculatorImplementationTest {
             420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
             """;
 
+    private static final String oneCheapMinute = """
+            420123577453,13-01-2020 07:59:15,13-01-2020 08:00:03
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45
+            """;
+
+
     @Test
     void testNonNull() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
@@ -120,13 +127,21 @@ class TelephoneBillCalculatorImplementationTest {
     @Test
     void testOverlapExpensiveStart() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
-        assertEquals(new BigDecimal("7.0"),telephoneBillCalculator.calculate(overlapExpensiveStart));
+        assertEquals(new BigDecimal("6.0"),telephoneBillCalculator.calculate(overlapExpensiveStart));
     }
 
     @Test
     void testOverlapExpensiveEnd() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
-        assertEquals(new BigDecimal("6.5"),telephoneBillCalculator.calculate(overlapExpensiveEnd));
+        assertEquals(new BigDecimal("5.5"),telephoneBillCalculator.calculate(overlapExpensiveEnd));
     }
+
+    @Test
+    void testOneCheapMinute() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("0.5"),telephoneBillCalculator.calculate(oneCheapMinute));
+    }
+
+
 
 }

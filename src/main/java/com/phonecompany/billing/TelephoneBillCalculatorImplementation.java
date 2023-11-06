@@ -37,6 +37,8 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
     }
 
     private BigDecimal calculateCost(PhoneBillEntry callBillEntry) {
+
+        BigDecimal callCost = BigDecimal.ZERO;
         int startHour = callBillEntry.getCallStart().getHours();
         int endHour = callBillEntry.getCallEnd().getHours();
 
@@ -51,13 +53,29 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
         }
 
         if (startHour >= expensiveEnd || endHour < expensiveStart) {
-                return durationInMinutes.multiply(cheapCost).add(longPartOfCall);
+            callCost = callCost.add(durationInMinutes.multiply(cheapCost));
         }
 
         if (startHour >= expensiveStart && endHour <= expensiveEnd) {
-                return durationInMinutes.multiply(expensiveCost).add(longPartOfCall);
+            callCost = callCost.add(durationInMinutes.multiply(expensiveCost));
         }
-        return new BigDecimal(0);
+        //This is assuming there are no calls longer than 24 hours
+        if (startHour < expensiveStart && endHour >= expensiveStart) {
+            int startMinutes = callBillEntry.getCallStart().getMinutes();
+            int startSeconds = callBillEntry.getCallStart().getSeconds();
+            int durationBeforeExpensiveStartInSeconds = 60 - startSeconds + (59-startMinutes)*60;
+            BigDecimal cheapPartDurationInMinutes = new BigDecimal(durationBeforeExpensiveStartInSeconds);
+            cheapPartDurationInMinutes = cheapPartDurationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
+            callCost = callCost.add(
+                    cheapPartDurationInMinutes.multiply(cheapCost)
+                    .add(durationInMinutes.subtract(cheapPartDurationInMinutes).multiply(expensiveCost))
+            );
+
+//            int endMinutes = callBillEntry.getCallEnd().getMinutes();
+//            int endSeconds = callBillEntry.getCallEnd().getSeconds();
+        }
+
+        return callCost.add(longPartOfCall);
     }
 
     private String findMostCommonCaller(Map<String, Integer> callFrequency) {
