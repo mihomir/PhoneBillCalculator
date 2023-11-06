@@ -9,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class TelephoneBillCalculatorImplementationTest {
 
 //    private static final String oneline = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:57";
-    private static final String oneline = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:15";
+    private static final String oneline = "420774577453,13-01-2020 18:10:15,13-01-2020 18:12:45";
+    private static final String longCall = "420774577453,13-01-2020 18:10:15,13-01-2020 18:16:45";
 
     @org.junit.jupiter.api.Test
     void testNonNull(){
@@ -19,7 +20,12 @@ class TelephoneBillCalculatorImplementationTest {
     @Test
     void testOneCall() {
         TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
-        assertEquals(new BigDecimal("1.0"), telephoneBillCalculator.calculate(oneline));
+        assertEquals(new BigDecimal("1.5"), telephoneBillCalculator.calculate(oneline));
+    }
+    @Test
+    void testLongCall() {
+        TelephoneBillCalculator telephoneBillCalculator = new TelephoneBillCalculatorImplementation();
+        assertEquals(new BigDecimal("2.9"), telephoneBillCalculator.calculate(longCall));
     }
 
     @Test

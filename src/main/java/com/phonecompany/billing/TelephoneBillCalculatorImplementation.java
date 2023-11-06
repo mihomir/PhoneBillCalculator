@@ -1,6 +1,7 @@
 package com.phonecompany.billing;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -11,6 +12,7 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
     private static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
     private static final int expensiveStart = 8;
     private static final int expensiveEnd = 16;
+    private static final BigDecimal expensiveDuration = new BigDecimal("5");
     private static final BigDecimal expensiveCost = BigDecimal.ONE;
     private static final BigDecimal cheapCost = new BigDecimal("0.5");
     private static final BigDecimal longCost = new BigDecimal("0.2");
@@ -36,11 +38,22 @@ public class TelephoneBillCalculatorImplementation implements TelephoneBillCalcu
     private BigDecimal calculateCost(PhoneBillEntry callBillEntry) {
         int startHour = callBillEntry.getCallStart().getHours();
         int endHour = callBillEntry.getCallEnd().getHours();
+        Date startRoundedToNearestMinute = new Date (
+                callBillEntry.getCallStart().getYear(),
+                callBillEntry.getCallStart().getMonth(),
+                callBillEntry.getCallStart().getDate(),
+                callBillEntry.getCallStart().getHours(),
+                callBillEntry.getCallStart().getMinutes());
+
         if (startHour >= expensiveEnd || endHour >= expensiveStart) {
-            long durationInMs = Math.abs(callBillEntry.getCallStart().getTime() - callBillEntry.getCallEnd().getTime());
+            long durationInMs = Math.abs(startRoundedToNearestMinute.getTime() - callBillEntry.getCallEnd().getTime());
             long durationInSeconds = durationInMs / 1000;
             BigDecimal durationInMinutes = new BigDecimal(durationInSeconds);
-            durationInMinutes = durationInMinutes.divide(new BigDecimal(60));
+            durationInMinutes = durationInMinutes.divide(new BigDecimal(60), RoundingMode.UP);
+            if (durationInMinutes.compareTo(expensiveDuration) > 0) {
+                return expensiveDuration.multiply(cheapCost)
+                        .add(durationInMinutes.subtract(expensiveDuration).multiply(longCost));
+            }
             return durationInMinutes.multiply(cheapCost);
         }
         return new BigDecimal(0);
